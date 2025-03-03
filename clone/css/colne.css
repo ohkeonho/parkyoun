@@ -1,0 +1,83 @@
+@import 'reset.css';
+
+.wrap{
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+header{
+    position: fixed;
+    top: 0;
+    left:  0;
+    width: 100%;
+    height: 100px;
+    z-index: 100;
+    background-color: #f0f0f0; /* 배경색 수정 */
+    display: flex; /* flexbox 사용 */
+    align-items: center; /* 수직 가운데 정렬 */
+    padding: 0 20px; /* 좌우 패딩 추가 */
+    box-sizing: border-box; /* 패딩을 포함한 크기 계산 */
+}
+
+header .inner{
+    width: 100%;
+    display: flex;
+    justify-content: space-between; /* 양쪽 끝 정렬 */
+    align-items: center;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+header .hamburger{
+    font-size: 24px;
+    cursor: pointer;
+}
+
+header .inner .logo{
+    width: 300px;
+    height: 100%;
+    display: block;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 1px solid #000;
+}
+header .inner .logo h4{
+    line-height: 100px;
+    text-align: center;
+}
+header .tnb ul{
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+header .tnb ul li{
+    margin-left: 15px;
+    cursor: pointer;
+}
+
+.visual{
+    width: 100%;
+    height: 110vh;
+    border: 1px solid #000;
+    display: flex; /* flexbox 적용 */
+    justify-content: center; /* 수평 가운데 정렬 */
+    align-items: center; /* 수직 가운데 정렬 */
+}
+
+.visual .inner {
+    max-width: 1400px;
+    border: 1px solid #000;
+    width: 100%; /* 추가 */
+    height: 50%;
+}
+
+footer{
+    width: 100%;
+    height: 40vh;
+    border: 1px solid #000;
+}

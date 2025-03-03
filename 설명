@@ -1,0 +1,6 @@
+controllers = 결과출력
+middlewarwes = 세션이나 토큰 같은 네트워크 관련 요소
+models = 데이터베이스 관련
+services = 기능요소들
+routes = 최종 서버로 보낼 api 정리? 같은 느낌
+dbconfig = 데이터베이스 연결할때 필요한 정보z

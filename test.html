@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>이메일 인증 테스트</title>
+</head>
+<body>
+    <h1>이메일 인증 테스트</h1>
+
+    <form id="emailForm">
+        <label for="email">이메일:</label><br>
+        <input type="email" id="email" name="email"><br><br>
+        <button type="button" id="sendButton">인증 코드 전송</button>
+    </form>
+
+    <form id="codeForm" style="display: none;">
+        <label for="code">인증 코드:</label><br>
+        <input type="text" id="code" name="code"><br><br>
+        <button type="button" id="verifyButton">인증 코드 확인</button>
+    </form>
+
+    <script>
+        const emailForm = document.getElementById('emailForm');
+        const codeForm = document.getElementById('codeForm');
+        const sendButton = document.getElementById('sendButton');
+        const verifyButton = document.getElementById('verifyButton');
+
+        sendButton.addEventListener('click', function() {
+            const email = document.getElementById('email').value;
+
+            fetch('http://localhost:8080/api/users/send-verification-email', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                emailForm.style.display = 'none';
+                codeForm.style.display = 'block';
+            })
+            .catch(error => {
+                alert('인증 코드 전송 실패');
+                console.error('인증 코드 전송 실패:', error);
+            });
+        });
+
+        verifyButton.addEventListener('click', function() {
+            const email = document.getElementById('email').value;
+            const code = document.getElementById('code').value;
+
+            fetch('http://localhost:8080/api/users/verify-email-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email: email, code: code })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                emailForm.style.display = 'block';
+                codeForm.style.display = 'none';
+            })
+            .catch(error => {
+                alert('인증 실패');
+                console.error('인증 실패:', error);
+            });
+        });
+    </script>
+</body>
+</html>

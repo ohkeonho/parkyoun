@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>풀페이지 스크롤</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.1.2/fullpage.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullPage.js/3.1.2/fullpage.min.js"></script>
+    <style>
+        section {
+            text-align: center;
+            font-size: 2em;
+        }
+    </style>
+</head>
+<body>
+    <div id="fullpage">
+        <section class="section" style="background: #ffcccb;">첫 번째 섹션</section>
+        <section class="section" style="background: #add8e6;">두 번째 섹션</section>
+        <section class="section" style="background: #90ee90;">세 번째 섹션</section>
+    </div>
+
+    <script>
+        new fullpage('#fullpage', {
+            autoScrolling: true,
+            navigation: true
+        });
+    </script>
+</body>
+</html>

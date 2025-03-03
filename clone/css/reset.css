@@ -1,0 +1,90 @@
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video,
+input, button {
+   margin: 0;
+   padding: 0;
+   border: 0;
+  letter-spacing: -0.04em;
+  -webkit-user-select : auto;
+  -moz-user-select:none;
+  -ms-user-select:none;
+  user-select:none;
+  outline: none;
+}
+*{
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  overflow-y: scroll;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+  scroll-behavior: smooth;
+}
+
+ul ,ol ,li {
+  list-style: none;
+}
+input,select,button {
+  vertical-align: middle;
+}
+select{
+  appearance: none;
+  outline: none;
+  cursor: pointer;
+}
+img {
+  vertical-align: top;
+}
+i, em, address {
+  font-style: normal;
+}
+label, button {
+  cursor: pointer;
+}
+button:disabled{
+  cursor: default;
+}
+a {
+  color: #000;
+  text-decoration: none;
+  transition: .3s;
+  cursor: pointer;
+  outline: none;
+}
+a:hover{
+    text-decoration: none;
+}
+
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+   display: block;
+}
+
+ol, ul {
+   list-style: none;
+}
+table {
+   border-collapse: collapse;
+   border-spacing: 0;
+}
+hr{
+  margin: 0;
+  border: 0;
+}
+form{
+  display: unset;
+}
