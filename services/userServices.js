@@ -58,7 +58,14 @@ class UserService {
       throw new Error("로그인 실패: " + error.message);
     }
   }
-  
+  static async invalidateRefreshToken(token) {
+    try {
+      await pool.execute("DELETE FROM sessions WHERE token = ?", [token]);
+    } catch (error) {
+      console.error("리프레시 토큰 무효화 오류:", error.message);
+      throw new Error("리프레시 토큰 무효화 중 오류가 발생했습니다.");
+    }
+  }
   
 }
 

@@ -22,8 +22,14 @@ class inquiry {
     }
     // 모든 문의글 조회
     static async getAll() {
-      const [rows] = await pool.promise().execute("SELECT * FROM inquiry");
-      return rows;
+        try {
+            const query = "SELECT * FROM inquiry ORDER BY time DESC"; // 최신순 정렬
+            const [rows] = await pool.execute(query); // `pool.execute()`로 변경
+            return rows;
+        } catch (error) {
+            console.error("모든 문의글 조회 오류:", error);
+            throw error;
+        }
     }
     // 특정 ID 또는 제목 일부로 검색
     static async getByIdOrTitle(id, title) {
@@ -42,6 +48,25 @@ class inquiry {
 
       const [rows] = await pool.promise().execute(query, params);
       return rows;
+    }
+    static async getInquiryDetail(num) {
+        try {
+            if (!num) {
+                throw new Error("num 값이 올바르지 않습니다.");
+            }
+    
+            const query = "SELECT * FROM inquiry WHERE num = ?";
+            const [rows] = await pool.execute(query, [num]);
+    
+            if (rows.length === 0) {
+                return { success: false, message: "해당 문의글을 찾을 수 없습니다." };
+            }
+    
+            return { success: true, inquiry: rows[0] };
+        } catch (error) {
+            console.error("❌ 문의글 상세 조회 오류:", error);
+            return { success: false, message: "DB 조회 중 오류가 발생했습니다." };
+        }
     }
     static async delete(num, id, role) {
       if (role === "admin") {

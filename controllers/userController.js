@@ -66,5 +66,25 @@ exports.loginUser = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+exports.logout = async (req, res) => {
+  // 클라이언트 요청 헤더에서 authorization 토큰 추출
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1]; // 'Bearer token'에서 토큰만 추출
 
+  // 토큰이 없으면 401 상태 코드와 에러 메시지 응답
+  if (!token) {
+    return res.status(401).json({ error: "토큰이 필요합니다." });
+  }
+
+  try {
+    // 로그아웃 시도 중 콘솔에 토큰 출력
+    console.log("로그아웃 시도 중, 토큰:", token);
+    // 로그아웃 성공 시 200 상태 코드와 성공 메시지 응답
+    res.status(200).json({ message: "로그아웃 성공" });
+  } catch (error) {
+    // 로그아웃 중 에러 발생 시 전체 오류 콘솔 출력하고 500 상태 코드 응답
+    console.error("로그아웃 오류:", error);
+    res.status(500).json({ error: "로그아웃 중 오류가 발생했습니다." });
+  }
+};
 

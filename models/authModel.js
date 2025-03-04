@@ -21,7 +21,7 @@ class AuthModel {
       throw error;
     }
   }
-
+  
   static async comparePassword(plainPassword, hashedPassword) {
     return bcrypt.compare(plainPassword, hashedPassword);
   }

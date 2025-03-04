@@ -1,5 +1,4 @@
 // index.js
-require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const static = require("serve-static");
@@ -32,7 +31,7 @@ app.use("/api/admin", adminRoutes); // 관리자 관련 라우트
 app.use("/api/info", authRoutes); // 인증 관련 라우트/
 app.use("/api/users", userRoutes); // 사용자 관련 라우트
 
-app.use("/api/boards", inquiryRoutes);//질문 답변 관련 라우터
+app.use("/api/boards", inquiryRoutes);
 app.get("/", (req, res) => {
   req.session.views = (req.session.views || 0) + 1;
   console.log("세션:", req.session); // 서버 측 세션 확인

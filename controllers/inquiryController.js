@@ -46,16 +46,16 @@ const deleteInquiry = async (req, res) => {
         console.log("🔍 Received Token:", token);
 
         if (!token) {
-            console.log("❌ No token provided");
+            console.log("No token provided");
             return res.status(401).json({ success: false, message: "로그인이 필요합니다." });
         }
 
         let decoded;
         try {
             decoded = jwt.verify(token, SECRET_KEY);
-            console.log("✅ Token Verified:", decoded);
+            console.log("Token Verified:", decoded);
         } catch (error) {
-            console.log("❌ Invalid Token:", error.message);
+            console.log("Invalid Token:", error.message);
             return res.status(401).json({ success: false, message: "유효하지 않은 토큰입니다." });
         }
 
@@ -92,16 +92,16 @@ const updateInquiry = async (req, res) => {
         console.log("🔍 Received Token:", token);
 
         if (!token) {
-            console.log("❌ No token provided");
+            console.log("No token provided");
             return res.status(401).json({ success: false, message: "로그인이 필요합니다." });
         }
 
         let decoded;
         try {
             decoded = jwt.verify(token, SECRET_KEY);
-            console.log("✅ Token Verified:", decoded);
+            console.log("Token Verified:", decoded);
         } catch (error) {
-            console.log("❌ Invalid Token:", error.message);
+            console.log("Invalid Token:", error.message);
             return res.status(401).json({ success: false, message: "유효하지 않은 토큰입니다." });
         }
 
@@ -147,36 +147,36 @@ const searchInquiry = async (req, res) => {
         res.status(500).json({ success: false, message: "서버 오류" });
     }
 };
-//관리자 답변변
+//관리자 답변
 const addComment = async (req, res) => {
     try {
         const { comment } = req.body;
         let { num } = req.params;
         const token = req.headers.authorization?.split(" ")[1];
 
-        // ✅ num 디버깅 로그 추가
-        console.log("🔍 관리자 답변 요청:", { num, comment });
-        console.log("📌 num의 원본 값:", num, "타입:", typeof num);
+        // num 디버깅 로그 추가
+        console.log("관리자 답변 요청:", { num, comment });
+        console.log("num의 원본 값:", num, "타입:", typeof num);
 
-        // ✅ 숫자로 변환
+        // 숫자로 변환
         if (!isNaN(num) && num.match(/^\d+$/)) {
             num = parseInt(num, 10);
         } else {
             return res.status(400).json({ success: false, message: "잘못된 문의글 번호입니다." });
         }
 
-        console.log("🔍 변환된 num 값:", num);
+        console.log("변환된 num 값:", num);
 
         const result = await AnswerService.addComment(num, token, comment);
         res.status(result.success ? 201 : 400).json(result);
     } catch (error) {
-        console.error("🚨 관리자 답변 등록 오류:", error);
+        console.error("관리자 답변 등록 오류:", error);
         res.status(500).json({ success: false, message: "서버 오류" });
     }
 };
 
 
-// ✅ 관리자 답변 수정
+// 관리자 답변 수정
 const updateComment = async (req, res) => {
     try {
         const { comment } = req.body;
@@ -193,13 +193,60 @@ const updateComment = async (req, res) => {
         res.status(500).json({ success: false, message: "서버 오류" });
     }
 };
+const getAnswersByInquiry = async (req, res) => {
+    try {
+        const { num } = req.params;
+        console.log(`문의 번호 ${num}에 대한 답변 요청`);
 
-// ✅ 이제 함수들을 `module.exports`에 추가
+        const answers = await AnswerService.getAnswersByInquiry(num);
+
+        if (!answers || answers.length === 0) {
+            return res.status(404).json({ success: false, message: "답변이 없습니다." });
+        }
+
+        res.json({ success: true, answers });
+    } catch (error) {
+        console.error("답변 조회 오류:", error);
+        res.status(500).json({ success: false, message: "서버 오류" });
+    }
+};
+// 모든 문의글 조회 API
+const getAllInquiries = async (req, res) => {
+    try {
+        const inquiries = await InquiryService.getAllInquiries();
+        res.status(200).json({ success: true, inquiries });
+    } catch (error) {
+        console.error("🔴 모든 문의글 조회 오류:", error);
+        res.status(500).json({ success: false, message: "서버 오류" });
+    }
+};
+
+const getInquiryDetail = async (req, res) => {
+    try {
+        const { num } = req.params;
+        const result = await InquiryService.getInquiryDetail(num);
+
+        if (result.success) {
+            res.status(200).json(result);
+        } else {
+            res.status(404).json(result);
+        }
+    } catch (error) {
+        console.error("문의글 상세 조회 오류:", error);
+        res.status(500).json({ success: false, message: "문의글 상세 조회 중 서버 오류가 발생했습니다." });
+    }
+};
+
+
+// `module.exports`에 추가
 module.exports = {
+    getInquiryDetail,
     createInquiry,
     deleteInquiry,
     updateInquiry,
     searchInquiry,
     addComment,
-    updateComment
+    updateComment,
+    getAnswersByInquiry,
+    getAllInquiries  // <-- 추가됨
 };

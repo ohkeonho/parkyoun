@@ -12,37 +12,36 @@ class InquiryService {
                 return { success: false, message: "로그인이 필요합니다." };
             }
 
-            console.log("✅ User from Middleware:", user); // user 객체 로그
+            console.log("User from Middleware:", user); // user 객체 로그
 
             const id = user.id;  // user 객체에서 id 가져오기
-            console.log("👤 User ID (DB 저장할 ID):", id);
+            console.log("User ID (DB 저장할 ID):", id);
 
             // 문의글 등록
             try {
-                console.log("🔍 문의글 저장 요청:", { title, contents, id });
+                console.log("문의글 저장 요청:", { title, contents, id });
                 const inquiryNum = await Inquiry.create(title, contents, id);
-                console.log("✅ 저장된 문의글 번호:", inquiryNum);
+                console.log("저장된 문의글 번호:", inquiryNum);
                 return { success: true, num: inquiryNum };
             } catch (error) {
-                console.error("❌ 문의글 저장 실패 (DB 오류):", error);
+                console.error("문의글 저장 실패 (DB 오류):", error);
                 return { success: false, message: "문의글 등록 실패 (DB 오류)" };
             }
         } catch (error) {
-            console.error("❌ 문의글 생성 오류 (기타 오류):", error);
+            console.error("문의글 생성 오류 (기타 오류):", error);
             return { success: false, message: "문의글 등록 실패 (서버 오류)" };
         }
     }
-
-    // 모든 문의글 조회
+//모든 문의글 조회
     static async getAllInquiries() {
         try {
             const inquiries = await Inquiry.getAll();
             return inquiries;
         } catch (error) {
-            console.error("문의글 조회 오류:", error);
-            return [];
+            console.error("🔴 모든 문의글 조회 오류:", error);
+            throw error;
         }
-    }
+    }   
 
     // 특정 문의글 조회 (번호 또는 제목 일부 검색)
     static async searchInquiry(num, title) {
@@ -53,6 +52,10 @@ class InquiryService {
             console.error("문의글 검색 오류:", error);
             return [];
         }
+    }
+
+    static async getInquiryDetail(num) {
+        return await Inquiry.getInquiryDetail(num);
     }
 
     // 문의글 삭제 (JWT 인증 필요)
