@@ -226,6 +226,8 @@ const getInquiryDetail = async (req, res) => {
         const { num } = req.params;
         const result = await InquiryService.getInquiryDetail(num);
 
+        console.log("🔍 백엔드 응답 데이터:", result);  // ✅ 프론트로 보내는 데이터 확인
+
         if (result.success) {
             res.status(200).json(result);
         } else {

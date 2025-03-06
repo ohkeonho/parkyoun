@@ -44,10 +44,54 @@ exports.logout = (req, res) => {
     return res.status(200).json({ message: "로그아웃 되었습니다." });
   }
 };
+
 exports.checkSession = (req, res) => {
   if (req.session && req.session.username) {
     res.send(`세션이 존재합니다. 사용자: ${req.session.username}`);
   } else {
     res.send("세션이 존재하지 않습니다.");
+  }
+};
+
+exports.requestVerification = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const result = await AuthService.sendVerificationEmail(email);
+    return res.status(200).json({ message: result });
+  } catch (error) {
+    console.error("이메일 인증 오류:", error);  // 오류 로그
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+exports.verifyEmail = async (req, res) => {
+  const { email, code } = req.body;
+
+  console.log("이메일:", email);
+  console.log("인증 코드:", code);
+
+  if (!email || !code) {
+    return res.status(400).json({ error: "이메일과 인증코드를 입력하세요." });
+  }
+
+  try {
+    const result = await AuthService.verifyEmailCode(email, code);
+    return res.status(200).json({ message: result });
+  } catch (error) {
+    console.error("인증 오류:", error);  // 오류 로그
+    return res.status(400).json({ error: error.message });
+  }
+};
+
+
+exports.verifyCode = async (req, res) => {
+  const { email, code } = req.body;
+
+  try {
+    const result = await AuthService.verifyEmailCode(email, code);
+    return res.status(200).json({ message: result });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
 };

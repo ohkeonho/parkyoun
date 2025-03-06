@@ -58,16 +58,20 @@ class inquiry {
             const query = "SELECT * FROM inquiry WHERE num = ?";
             const [rows] = await pool.execute(query, [num]);
     
+            console.log("🔍 조회된 문의글:", rows[0]);  // ✅ DB에서 온 데이터 확인
+    
             if (rows.length === 0) {
                 return { success: false, message: "해당 문의글을 찾을 수 없습니다." };
             }
     
-            return { success: true, inquiry: rows[0] };
+            return { success: true, inquiry: rows[0] };  // ✅ 여기서 inquiry에 감싸서 보내는지 확인
         } catch (error) {
             console.error("❌ 문의글 상세 조회 오류:", error);
             return { success: false, message: "DB 조회 중 오류가 발생했습니다." };
         }
     }
+    
+    
     static async delete(num, id, role) {
       if (role === "admin") {
           // 관리자는 모든 글 삭제 가능

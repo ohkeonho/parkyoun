@@ -66,6 +66,44 @@ class UserService {
       throw new Error("리프레시 토큰 무효화 중 오류가 발생했습니다.");
     }
   }
+  // 사용자 정보 가져오기
+  static async getUserInfo(id) {
+    try {
+      const user = await User.getUserById(id);
+      return user;
+    } catch (error) {
+      console.error("사용자 정보 가져오기 오류:", error);
+      throw error;
+    }
+  }
+
+  // 아이디와 비밀번호 수정
+  static async updateUserInfo(id, newId, newPassword) {
+    try {
+      // 사용자 정보 가져오기
+      const user = await User.getUserById(id);
+  
+      // 새 아이디가 비어 있으면 기존 아이디 사용
+      const idToUpdate = newId || user.id;
+  
+      // 새 비밀번호가 비어 있으면 기존 비밀번호 사용
+      const passwordToUpdate = newPassword ? await bcrypt.hash(newPassword, 10) : user.password;
+  
+      // 새 아이디와 새 비밀번호가 모두 없을 경우 수정하지 않음
+      if (newId === '' && newPassword === '') {
+        return false; // 수정이 이루어지지 않음
+      }
+  
+      // 아이디와 비밀번호 수정
+      const result = await User.updateUser(id, idToUpdate, passwordToUpdate);
+      return result;
+    } catch (error) {
+      console.error("사용자 정보 수정 오류:", error);
+      throw error;
+    }
+  }
+  
+  
   
 }
 

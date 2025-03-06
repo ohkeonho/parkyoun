@@ -54,6 +54,44 @@ static async verifyEmailCode(email, code) {
   static async comparePassword(plainPassword, hashedPassword) {
     return bcrypt.compare(plainPassword, hashedPassword); // 비밀번호 비교
   }
+  // 사용자 정보 가져오기 (id로)
+  static async getUserById(id) {
+    try {
+      const [rows] = await pool.execute(
+        "SELECT id, email, name FROM users WHERE id = ?",
+        [id]
+      );
+      return rows[0]; // 해당 사용자 정보 반환
+    } catch (error) {
+      console.error("사용자 정보 조회 오류:", error);
+      throw error;
+    }
+  }
+
+  // 아이디와 비밀번호 수정하기
+  static async updateUser(id, newId, newPassword) {
+    try {
+      let updateQuery;
+      const params = [];
+  
+      // 비밀번호가 변경되었을 경우만 해싱
+      if (newPassword) {
+        updateQuery = "UPDATE users SET id = ?, password = ? WHERE id = ?";
+        params.push(newId, newPassword, id);
+      } else {
+        updateQuery = "UPDATE users SET id = ? WHERE id = ?";
+        params.push(newId, id);
+      }
+  
+      const [result] = await pool.execute(updateQuery, params);
+      return result.affectedRows > 0; // 수정된 행이 있으면 true 반환
+    } catch (error) {
+      console.error("사용자 정보 수정 오류:", error);
+      throw error;
+    }
+  }
+  
+  
 }
 
 module.exports = User;

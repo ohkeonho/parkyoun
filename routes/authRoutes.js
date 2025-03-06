@@ -8,4 +8,7 @@ router.get("/protected", authenticateJWT, (req, res) => {
 });
 router.post("/logout", authController.logout);
 router.get("/check-session", authController.checkSession);
+router.post("/request-verification", authController.requestVerification);
+router.post("/verify-email", authController.verifyEmail);
+router.post("/verify-code", authController.verifyCode);
 module.exports = router;

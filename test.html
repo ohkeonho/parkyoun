@@ -1,73 +1,96 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-    <title>이메일 인증 테스트</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>마이페이지</title>
 </head>
 <body>
-    <h1>이메일 인증 테스트</h1>
+  <h1>마이페이지</h1>
+  
+  <div>
+    <h3>사용자 정보</h3>
+    <p>아이디: <span id="userId"></span></p>
+    <p>이메일: <span id="userEmail"></span></p>
+    <p>이름: <span id="userName"></span></p>
+  </div>
+  
+  <h3>아이디 및 비밀번호 수정</h3>
+  <form id="updateForm">
+    <label for="newId">새 아이디:</label>
+    <input type="text" id="newId" name="newId">
+    <label for="newPassword">새 비밀번호:</label>
+    <input type="password" id="newPassword" name="newPassword">
+    <button type="submit">정보 수정</button>
+  </form>
 
-    <form id="emailForm">
-        <label for="email">이메일:</label><br>
-        <input type="email" id="email" name="email"><br><br>
-        <button type="button" id="sendButton">인증 코드 전송</button>
-    </form>
+  <script>
+    // JWT 토큰에서 사용자 정보 가져오기
+    const token = localStorage.getItem('token');
+    let currentUserId = '';
+    let currentUserEmail = '';
+    let currentUserName = '';
 
-    <form id="codeForm" style="display: none;">
-        <label for="code">인증 코드:</label><br>
-        <input type="text" id="code" name="code"><br><br>
-        <button type="button" id="verifyButton">인증 코드 확인</button>
-    </form>
+    if (token) {
+      fetch('http://localhost:8080/api/users/mypage', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('userId').innerText = data.id;
+        document.getElementById('userEmail').innerText = data.email;
+        document.getElementById('userName').innerText = data.name;
 
-    <script>
-        const emailForm = document.getElementById('emailForm');
-        const codeForm = document.getElementById('codeForm');
-        const sendButton = document.getElementById('sendButton');
-        const verifyButton = document.getElementById('verifyButton');
+        // 기존 사용자 정보 저장
+        currentUserId = data.id;
+        currentUserEmail = data.email;
+        currentUserName = data.name;
+      })
+      .catch(error => console.error('사용자 정보 조회 오류:', error));
 
-        sendButton.addEventListener('click', function() {
-            const email = document.getElementById('email').value;
+      // 정보 수정 폼 제출
+      document.getElementById('updateForm').addEventListener('submit', (event) => {
+        event.preventDefault();
 
-            fetch('http://localhost:8080/api/users/send-verification-email', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email: email })
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                emailForm.style.display = 'none';
-                codeForm.style.display = 'block';
-            })
-            .catch(error => {
-                alert('인증 코드 전송 실패');
-                console.error('인증 코드 전송 실패:', error);
-            });
-        });
+        const newId = document.getElementById('newId').value || currentUserId; // 새 아이디가 없으면 기존 아이디 사용
+        const newPassword = document.getElementById('newPassword').value || null; // 새 비밀번호가 없으면 null
 
-        verifyButton.addEventListener('click', function() {
-            const email = document.getElementById('email').value;
-            const code = document.getElementById('code').value;
+        // 새 아이디와 새 비밀번호가 모두 비어있을 경우
+        if (!newId && !newPassword) {
+          alert('수정할 정보가 없습니다. 아이디 또는 비밀번호를 입력해주세요.');
+          return; // 수정하지 않고 종료
+        }
 
-            fetch('http://localhost:8080/api/users/verify-email-code', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ email: email, code: code })
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                emailForm.style.display = 'block';
-                codeForm.style.display = 'none';
-            })
-            .catch(error => {
-                alert('인증 실패');
-                console.error('인증 실패:', error);
-            });
-        });
-    </script>
+        // 요청 보내기 전에 비밀번호가 없으면 비밀번호를 제외한 데이터로만 수정
+        fetch('http://localhost:8080/api/users/update', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ newId, newPassword })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.message) {
+            alert(data.message);
+            // 토큰 삭제
+            localStorage.removeItem('token');  // 또는 sessionStorage.removeItem('token');
+            // 수정이 완료되면 로그인 페이지로 리다이렉트
+            window.location.href = 'login.html';  // 로그인 페이지로 이동
+          } else if (data.error) {
+            alert(data.error);
+          }
+        })
+        .catch(error => console.error('정보 수정 오류:', error));
+      });
+    } else {
+      alert("로그인이 필요합니다.");
+      window.location.href = 'login.html'; // 로그인 페이지로 리다이렉트
+    }
+  </script>
 </body>
 </html>

@@ -1,5 +1,5 @@
 const UserService = require("../services/userServices");
-
+const jwt = require("jsonwebtoken");
 exports.checkIdExists = async (req, res) => {
   const { id } = req.body;
   if (!id) return res.status(400).json({ error: "아이디를 입력하세요." });
@@ -88,3 +88,63 @@ exports.logout = async (req, res) => {
   }
 };
 
+exports.getUserInfo = async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];  // 'Bearer <token>'에서 토큰 추출
+  if (!token) {
+    return res.status(401).json({ error: "토큰이 필요합니다." });
+  }
+
+  try {
+    // 토큰 디코딩하여 사용자 정보 추출
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { id } = decoded;
+
+    const user = await UserService.getUserInfo(id);
+
+    if (user) {
+      return res.status(200).json({
+        id: user.id,
+        email: user.email,
+        name: user.name
+      });
+    } else {
+      return res.status(404).json({ error: "사용자를 찾을 수 없습니다." });
+    }
+  } catch (error) {
+    console.error("사용자 정보 조회 오류:", error);
+    return res.status(500).json({ error: "사용자 정보를 가져오는 중 오류가 발생했습니다." });
+  }
+};
+
+// 사용자 정보 수정
+exports.updateUserInfo = async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];  // 'Bearer <token>'에서 토큰 추출
+  if (!token) {
+    return res.status(401).json({ error: "토큰이 필요합니다." });
+  }
+
+  const { newId, newPassword } = req.body;
+
+  try {
+    // 토큰 디코딩하여 사용자 정보 추출
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { id } = decoded;
+
+    // 아이디와 비밀번호가 모두 비어있을 경우 수정하지 않음
+    if (!newId && !newPassword) {
+      return res.status(400).json({ error: "수정할 정보가 없습니다." });
+    }
+
+    // 비밀번호가 없으면 기존 비밀번호를 그대로 사용
+    const result = await UserService.updateUserInfo(id, newId, newPassword);
+
+    if (result) {
+      return res.status(200).json({ message: "사용자 정보가 성공적으로 수정되었습니다." });
+    } else {
+      return res.status(400).json({ error: "사용자 정보 수정 실패" });
+    }
+  } catch (error) {
+    console.error("사용자 정보 수정 오류:", error);
+    return res.status(500).json({ error: "사용자 정보를 수정하는 중 오류가 발생했습니다." });
+  }
+};
