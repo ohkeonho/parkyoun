@@ -1,7 +1,6 @@
 // index.js
 const express = require("express");
 const path = require("path");
-const crypto = require('crypto');
 const static = require("serve-static");
 const bcrypt = require("bcrypt");
 const bodyParser = require("body-parser");

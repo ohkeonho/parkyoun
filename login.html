@@ -16,6 +16,7 @@
             <button type="submit">로그인</button>
         </form>
     </div>
+
     <div id="logoutButtonContainer" style="display: none;">
         <h2>로그아웃</h2>
         <button id="logoutButton">로그아웃</button>
@@ -47,7 +48,7 @@
                     if (data.role === 'admin') {
                         window.location.href = '/admin';
                     } else {
-                        window.location.href = 'index.html';
+                        window.location.href = 'http://127.0.0.1:5501/index.html';
                     }
                     loginFormContainer.style.display = 'none';
                     logoutButtonContainer.style.display = 'block';
