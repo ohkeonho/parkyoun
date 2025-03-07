@@ -8,9 +8,20 @@ class User {
   }
 
   static async checkEmailExists(email) {
-    const [rows] = await pool.execute("SELECT COUNT(*) AS count FROM users WHERE email = ?", [email]);
-    return rows[0].count > 0;
-  }
+    try {
+      const [rows] = await pool.execute(
+        `SELECT COUNT(*) AS count FROM (
+          SELECT email FROM admin WHERE email = ?
+          UNION 
+          SELECT email FROM users WHERE email = ?
+        ) AS combined`,
+        [email, email]
+      );
+      return rows[0].count > 0;
+    } catch (error) {
+      throw new Error("이메일 확인 중 오류가 발생했습니다: " + error.message);
+    }
+}
 
   static async create(id, email, name, password) {
     const hashedPassword = await bcrypt.hash(password, 10); // 비밀번호 해싱

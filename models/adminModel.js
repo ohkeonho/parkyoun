@@ -7,14 +7,19 @@ class Admin {
   static async checkEmailExists(email) {
     try {
       const [rows] = await pool.execute(
-        "SELECT COUNT(*) AS count FROM admin WHERE email = ?",
-        [email]
+        `SELECT COUNT(*) AS count FROM (
+          SELECT email FROM admin WHERE email = ?
+          UNION 
+          SELECT email FROM users WHERE email = ?
+        ) AS combined`,
+        [email, email]
       );
       return rows[0].count > 0;
     } catch (error) {
       throw new Error("이메일 확인 중 오류가 발생했습니다: " + error.message);
     }
-  }
+}
+
 
   // 아이디로 관리자 존재 여부 확인
   static async findById(id) {
