@@ -116,35 +116,68 @@ exports.getUserInfo = async (req, res) => {
   }
 };
 
-// 사용자 정보 수정
-exports.updateUserInfo = async (req, res) => {
+
+// 이메일 수정
+exports.updateEmail = async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];  // 'Bearer <token>'에서 토큰 추출
   if (!token) {
     return res.status(401).json({ error: "토큰이 필요합니다." });
   }
 
-  const { newId, newPassword } = req.body;
+  const { newEmail } = req.body;
 
   try {
-    // 토큰 디코딩하여 사용자 정보 추출
+    // 토큰을 통해 사용자 정보 추출
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const { id } = decoded;
 
-    // 아이디와 비밀번호가 모두 비어있을 경우 수정하지 않음
-    if (!newId && !newPassword) {
-      return res.status(400).json({ error: "수정할 정보가 없습니다." });
+    if (!newEmail) {
+      return res.status(400).json({ error: "이메일을 입력하세요." });
     }
 
-    // 비밀번호가 없으면 기존 비밀번호를 그대로 사용
-    const result = await UserService.updateUserInfo(id, newId, newPassword);
+    // 이메일 수정 요청 처리
+    const result = await UserService.updateEmail(id, newEmail);
 
     if (result) {
-      return res.status(200).json({ message: "사용자 정보가 성공적으로 수정되었습니다." });
+      return res.status(200).json({ message: "이메일이 성공적으로 수정되었습니다." });
     } else {
-      return res.status(400).json({ error: "사용자 정보 수정 실패" });
+      return res.status(400).json({ error: "이메일 수정 실패" });
     }
   } catch (error) {
-    console.error("사용자 정보 수정 오류:", error);
-    return res.status(500).json({ error: "사용자 정보를 수정하는 중 오류가 발생했습니다." });
+    console.error("이메일 수정 오류:", error);
+    return res.status(500).json({ error: "이메일을 수정하는 중 오류가 발생했습니다." });
+  }
+};
+
+// 비밀번호 수정 API 엔드포인트
+exports.updateUserPassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+
+  // 현재 비밀번호와 새 비밀번호가 모두 있는지 확인
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ error: "현재 비밀번호와 새 비밀번호를 모두 입력해주세요." });
+  }
+
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ error: "토큰이 필요합니다." });
+    }
+
+    // 토큰 검증 및 사용자 ID 추출
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { id } = decoded;
+
+    // 비밀번호 업데이트
+    const result = await UserService.updateUserPassword(id, currentPassword, newPassword);
+
+    if (result) {
+      return res.status(200).json({ message: "비밀번호가 성공적으로 수정되었습니다." });
+    } else {
+      return res.status(400).json({ error: "비밀번호 수정 실패" });
+    }
+  } catch (error) {
+    console.error("비밀번호 수정 오류:", error);
+    return res.status(500).json({ error: "비밀번호를 수정하는 중 오류가 발생했습니다." });
   }
 };

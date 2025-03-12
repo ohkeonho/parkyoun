@@ -10,22 +10,23 @@ class UserService {
 
   static async sendVerificationEmail(email) {
     if (!emailRegex.test(email)) throw new Error("유효한 이메일을 입력하세요.");
-
+  
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiration = new Date(Date.now() + 10 * 60 * 1000);
-
+    const expiration = new Date(Date.now() + 10 * 60 * 1000);  // 10분 후 만료
+  
     await User.saveVerificationCode(email, verificationCode, expiration);
-
+  
     await sendVerificationEmail(email, verificationCode);
-
+  
     return "인증번호가 이메일로 전송되었습니다.";
   }
 
   static async verifyEmailCode(email, code) {
     const isValid = await User.verifyEmailCode(email, code);
     if (!isValid) throw new Error("인증번호가 일치하지 않거나 만료되었습니다.");
-    return "이메일 인증 성공!";
+    return { success: true, message: "이메일 인증 성공!" };
   }
+
 
   static async registerUser(id, email, name, password) {
     try {
@@ -77,34 +78,73 @@ class UserService {
     }
   }
 
-  // 아이디와 비밀번호 수정
-  static async updateUserInfo(id, newId, newPassword) {
+  
+  static async updateEmail(id, newEmail) {
     try {
       // 사용자 정보 가져오기
       const user = await User.getUserById(id);
   
-      // 새 아이디가 비어 있으면 기존 아이디 사용
-      const idToUpdate = newId || user.id;
+      // 새 이메일이 비어 있으면 기존 이메일 사용
+      const emailToUpdate = newEmail || user.email;
   
-      // 새 비밀번호가 비어 있으면 기존 비밀번호 사용
-      const passwordToUpdate = newPassword ? await bcrypt.hash(newPassword, 10) : user.password;
-  
-      // 새 아이디와 새 비밀번호가 모두 없을 경우 수정하지 않음
-      if (newId === '' && newPassword === '') {
-        return false; // 수정이 이루어지지 않음
+      // 새 이메일이 이미 존재하는지 확인
+      const emailExists = await User.checkEmailExists(emailToUpdate);
+      if (emailExists) {
+        throw new Error("이미 등록된 이메일입니다.");
       }
-  
-      // 아이디와 비밀번호 수정
-      const result = await User.updateUser(id, idToUpdate, passwordToUpdate);
+
+      // 이메일 수정
+      const result = await User.updateUserEmail(id, emailToUpdate);
       return result;
     } catch (error) {
-      console.error("사용자 정보 수정 오류:", error);
+      console.error("이메일 수정 오류:", error);
       throw error;
     }
   }
-  
-  
-  
+
+  /// 비밀번호 수정 서비스 함수 (스태틱 메서드)
+  static async updateUserPassword(id, currentPassword, newPassword) {
+    try {
+      // 사용자 정보 가져오기
+      const user = await User.getUserById(id);
+      if (!user) {
+        throw new Error("사용자를 찾을 수 없습니다.");
+      }
+
+      // 저장된 비밀번호가 있는지 확인
+      if (!user.password) {
+        throw new Error("저장된 비밀번호가 없습니다.");
+      }
+
+      // 현재 비밀번호가 일치하는지 확인
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        throw new Error("현재 비밀번호가 일치하지 않습니다.");  // 비밀번호 불일치 시 오류 발생
+      }
+
+      // 새 비밀번호가 정규 표현식을 만족하는지 확인
+      if (!passwordRegex.test(newPassword)) {
+        throw new Error("새 비밀번호는 최소 8자 이상, 대문자, 소문자, 숫자, 특수문자를 포함해야 합니다.");
+      }
+
+      // 새 비밀번호를 해시화하여 업데이트
+      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+      const result = await User.updateUserPassword(id, hashedNewPassword);
+      if (!result) {
+        throw new Error("비밀번호 수정 실패");
+      }
+
+      return { message: "비밀번호가 성공적으로 수정되었습니다." };
+
+    } catch (error) {
+      console.error("비밀번호 수정 오류:", error);
+      throw error; // 오류가 발생하면 다시 던져서 컨트롤러에서 처리
+    }
 }
+
+  
+
+}
+  
 
 module.exports = UserService;

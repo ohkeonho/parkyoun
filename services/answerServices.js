@@ -41,16 +41,18 @@ class AnswerService {
     // 특정 문의글의 답변 조회
     static async getAnswersByInquiry(num) {
         try {
-            const [answers] = await pool.promise().execute(
-                "SELECT * FROM answer WHERE id = ?",
+            console.log(`🔍 답변 조회 요청 num: ${num}`); // ✅ num 값 확인
+            const [answers] = await pool.execute(
+                "SELECT * FROM answer WHERE id = ?",  // 🔥 수정: answer_id → id
                 [num]
             );
             return answers;
         } catch (error) {
-            console.error("답변 조회 오류:", error);
+            console.error("❌ 답변 조회 오류:", error);
             return [];
         }
     }
+    
 
     // 답변 수정 (관리자만 가능)
     static async updateComment(num, token, comment) {

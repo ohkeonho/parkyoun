@@ -68,39 +68,48 @@ static async verifyEmailCode(email, code) {
   // 사용자 정보 가져오기 (id로)
   static async getUserById(id) {
     try {
-      const [rows] = await pool.execute(
-        "SELECT id, email, name FROM users WHERE id = ?",
-        [id]
-      );
-      return rows[0]; // 해당 사용자 정보 반환
+      const query = "SELECT id, name, email, password FROM users WHERE id = ?";
+      const params = [id];
+      const [rows] = await pool.execute(query, params);
+  
+      if (rows.length === 0) {
+        return null;  // 사용자 없음
+      }
+  
+      return rows[0];  // 사용자 정보 반환
     } catch (error) {
       console.error("사용자 정보 조회 오류:", error);
       throw error;
     }
   }
 
-  // 아이디와 비밀번호 수정하기
-  static async updateUser(id, newId, newPassword) {
+
+  // 사용자 이메일 수정
+  static async updateUserEmail(id, newEmail) {
     try {
-      let updateQuery;
-      const params = [];
-  
-      // 비밀번호가 변경되었을 경우만 해싱
-      if (newPassword) {
-        updateQuery = "UPDATE users SET id = ?, password = ? WHERE id = ?";
-        params.push(newId, newPassword, id);
-      } else {
-        updateQuery = "UPDATE users SET id = ? WHERE id = ?";
-        params.push(newId, id);
-      }
-  
-      const [result] = await pool.execute(updateQuery, params);
+      const query = "UPDATE users SET email = ? WHERE id = ?";
+      const params = [newEmail, id];
+      const [result] = await pool.execute(query, params);
       return result.affectedRows > 0; // 수정된 행이 있으면 true 반환
     } catch (error) {
-      console.error("사용자 정보 수정 오류:", error);
+      console.error("사용자 이메일 수정 오류:", error);
       throw error;
     }
   }
+
+  // 사용자 비밀번호 수정
+  static async updateUserPassword(id, newPassword) {
+    try {
+      const query = "UPDATE users SET password = ? WHERE id = ?";
+      const params = [newPassword, id]; // 이미 해시화된 newPassword 전달
+      const [result] = await pool.execute(query, params);
+      return result.affectedRows > 0; // 수정된 행이 있으면 true 반환
+    } catch (error) {
+      console.error("사용자 비밀번호 수정 오류:", error);
+      throw error;
+    }
+  }
+  
   
   
 }

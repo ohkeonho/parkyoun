@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>이메일 수정</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .form-container {
+      width: 300px;
+      margin: 0 auto;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #verifyButton {
+      background-color: #2196F3;
+    }
+    #verifyButton:hover {
+      background-color: #0b7dda;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>이메일 수정</h2>
+  
+  <div class="form-container">
+    <label for="newEmail">새 이메일</label>
+    <input type="email" id="newEmail" placeholder="새 이메일을 입력하세요" required>
+    
+    <button id="verifyButton" onclick="sendVerificationCode()">인증번호 전송</button>
+
+    <label for="verificationCode">인증번호</label>
+    <input type="text" id="verificationCode" placeholder="인증번호를 입력하세요" disabled>
+    
+    <button id="verifyCodeButton" onclick="verifyCode()" disabled>인증번호 확인</button>
+    
+    <button id="updateEmailButton" onclick="updateEmail()" disabled>이메일 수정</button>
+  </div>
+
+  <script>
+    // 인증번호 전송 여부 확인
+    let verificationCodeSent = false;
+
+    // 인증번호 전송
+    async function sendVerificationCode() {
+      const newEmail = document.getElementById('newEmail').value;
+      
+      if (!newEmail) {
+        alert('새 이메일을 입력해주세요.');
+        return;
+      }
+      
+      const token = localStorage.getItem('token'); // 로그인 시 저장한 토큰 가져오기
+      
+      // 요청 전 콘솔 출력 (디버깅용)
+      console.log('인증번호 전송 요청:', {
+        email: newEmail,
+        token: token
+      });
+
+      try {
+        const response = await fetch('http://localhost:8080/api/users/send-verification-email', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email: newEmail })
+        });
+
+        const data = await response.json();
+
+        console.log('서버 응답:', data); // 서버 응답 확인용
+
+        if (response.ok) {
+          alert(data.message || '인증번호가 이메일로 전송되었습니다.');
+          verificationCodeSent = true;
+          document.getElementById('verificationCode').disabled = false;
+          document.getElementById('verifyCodeButton').disabled = false;
+        } else {
+          alert(data.error || '인증번호 전송 실패');
+        }
+      } catch (error) {
+        console.error('인증번호 전송 중 오류 발생:', error);
+        alert('서버 오류가 발생했습니다.');
+      }
+    }
+
+ // 인증번호 확인
+ // 인증번호 확인
+function verifyCode() {
+    const newEmail = document.getElementById('newEmail').value;  // 수정: 이메일 입력란의 id에 맞게 변경
+    const code = document.getElementById('verificationCode').value;
+
+    fetch('http://3.36.103.227:8080/api/users/verify-email-code', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: newEmail, code: code })  // 수정: newEmail을 사용
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('인증번호 확인 성공');
+        document.getElementById('updateEmailButton').disabled = false; // 인증번호 확인 후 이메일 수정 버튼 활성화
+    })
+    .catch(error => {
+        alert('인증 실패');
+        console.error('인증 실패:', error);
+    });
+}
+
+
+
+    // 이메일 수정
+    async function updateEmail() {
+      const newEmail = document.getElementById('newEmail').value;
+      const token = localStorage.getItem('token'); // 로그인 시 저장한 토큰 가져오기
+      
+      if (!newEmail) {
+        alert('이메일을 입력하세요.');
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:8080/api/users/update-email', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ newEmail })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          alert('이메일이 성공적으로 수정되었습니다.');
+        localStorage.removeItem('token');
+        window.location.href = 'login.html';
+        } else {
+          alert(data.error || '이메일 수정 실패');
+        }
+      } catch (error) {
+        console.error('이메일 수정 중 오류 발생:', error);
+        alert('서버 오류가 발생했습니다.');
+      }
+    }
+  </script>
+
+</body>
+</html>

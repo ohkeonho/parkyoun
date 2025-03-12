@@ -35,7 +35,8 @@ router.get("/inquiry/:num", async (req, res) => {
 // router.put("/admin/inquiry/:num/comment/edit", authenticateJWT, InquiryController.updateComment);
 
 // 문의글 번호(num)에 대한 답변 조회 API
-router.get("/boards/inquiry/:num/answers", InquiryController.getAnswersByInquiry);
+router.get("/inquiry/:num/answers", InquiryController.getAnswersByInquiry);
+
 
 module.exports = router;
 
